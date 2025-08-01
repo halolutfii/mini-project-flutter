@@ -20,10 +20,8 @@ void main() {
     @override
     Widget build(BuildContext context) {
       return MaterialApp(
-        title: 'Employee Self Service',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
           useMaterial3: true,
           textTheme: GoogleFonts.poppinsTextTheme(),
         ),
@@ -136,6 +134,13 @@ void main() {
                   name,
                   style: GoogleFonts.poppins(
                     fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  emp_id,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -331,31 +336,3 @@ void main() {
           'July', 'August', 'September', 'October', 'November', 'December'];
     return months[month - 1];
   }
-
-
-// REUSABLE ROW
-class InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-
-  const InfoRow({super.key, required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
