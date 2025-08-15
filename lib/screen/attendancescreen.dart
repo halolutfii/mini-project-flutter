@@ -1,107 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:hr_attendance_tracker_app/components/footer.dart';
+import 'package:hr_attendance_tracker_app/widgets/footer.dart';
+import 'package:provider/provider.dart';
+import '../providers/attendance_provider.dart';
+import '../models/attendance.dart';
 
-class AttendanceHistoryScreen extends StatelessWidget {
-  AttendanceHistoryScreen({super.key});
+class AttendanceScreen extends StatelessWidget {
+  const AttendanceScreen({super.key});
 
-  // Dummy data
-  final List<Map<String, String>> attendanceRecords = [
-    {
-      "date": "2025-08-01",
-      "checkIn": "08:00 AM",
-      "checkOut": "05:00 PM",
-      "status": "Present",
-    },
-    {
-      "date": "2025-08-02",
-      "checkIn": "08:15 AM",
-      "checkOut": "05:05 PM",
-      "status": "Present",
-    },
-    {
-      "date": "2025-08-03",
-      "checkIn": "-",
-      "checkOut": "-",
-      "status": "Absent",
-    },
-    {
-      "date": "2025-08-04",
-      "checkIn": "08:05 AM",
-      "checkOut": "04:55 PM",
-      "status": "Present",
-    },
-    {
-      "date": "2025-08-05",
-      "checkIn": "08:20 AM",
-      "checkOut": "05:10 PM",
-      "status": "Late",
-    },
-    {
-      "date": "2025-08-06",
-      "checkIn": "08:00 AM",
-      "checkOut": "05:00 PM",
-      "status": "Present",
-    },
-  ];
-
-@override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: Column(
-        children: [
-          // daftar attendance
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: attendanceRecords.length,
-              itemBuilder: (context, index) {
-                final record = attendanceRecords[index];
-                return AttendanceRecordItem(
-                  date: record["date"]!,
-                  checkIn: record["checkIn"]!,
-                  checkOut: record["checkOut"]!,
-                  status: record["status"]!,
-                );
-              },
-            ),
-          ),
-          Footer(),
-        ],
-      ),
-    );
+  String _formatTime(DateTime? time) {
+    if (time == null) return "-";
+    return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
-}
 
-// Reusable widget untuk item record
-class AttendanceRecordItem extends StatelessWidget {
-  final String date;
-  final String checkIn;
-  final String checkOut;
-  final String status;
+  String _formatDate(dynamic date) {
+  if (date == null) return "-";
 
-  const AttendanceRecordItem({
-    super.key,
-    required this.date,
-    required this.checkIn,
-    required this.checkOut,
-    required this.status,
-  });
-
-  Color _getStatusColor() {
-    switch (status) {
-      case "Present":
-        return Colors.green;
-      case "Late":
-        return Colors.orange;
-      case "Absent":
-        return Colors.red;
-      default:
-        return Colors.grey;
+  if (date is String) {
+      try {
+        final parsed = DateTime.parse(date);
+        return "${parsed.day.toString().padLeft(2, '0')}-${parsed.month.toString().padLeft(2, '0')}-${parsed.year}";
+      } catch (_) {
+        return date; 
+      }
+    } else if (date is DateTime) {
+      return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
     }
+
+    return "-";
   }
 
-  IconData _getStatusIcon() {
+  IconData _getStatusIcon(String? status) {
     switch (status) {
       case "Present":
         return Icons.check_circle;
@@ -114,34 +42,72 @@ class AttendanceRecordItem extends StatelessWidget {
     }
   }
 
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case "Present":
+        return Colors.green;
+      case "Late":
+        return Colors.orange;
+      case "Absent":
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white, // biar kontras sama background
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: Icon(
-          _getStatusIcon(),
-          color: _getStatusColor(),
-          size: 32,
-        ),
-        title: Text(
-          date,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text("Check-in: $checkIn\nCheck-out: $checkOut"),
-        trailing: Text(
-          status,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: _getStatusColor(),
+    final attendanceProvider = Provider.of<AttendanceProvider>(context);
+    final List<Attendance> records = attendanceProvider.records;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: records.length,
+            itemBuilder: (context, index) {
+              final record = records[index];
+              final date = _formatDate(record.date);
+              final checkIn = _formatTime(record.checkInTime);
+              final checkOut = _formatTime(record.checkOutTime);
+              final status = record.status ?? "Unknown";
+
+              return Card(
+                color: Colors.white,
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    _getStatusIcon(status),
+                    color: _getStatusColor(status),
+                    size: 32,
+                  ),
+                  title: Text(
+                    date,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text("Check-in: $checkIn\nCheck-out: $checkOut"),
+                  trailing: Text(
+                    status,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getStatusColor(status),
+                    ),
+                  ),
+                  isThreeLine: true,
+                ),
+              );
+            },
           ),
         ),
-        isThreeLine: true,
+
+        Footer()
+      ],
       ),
     );
   }

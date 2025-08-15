@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'components/appbar.dart';
-import 'components/drawer.dart';
+import 'package:provider/provider.dart';
+
+import './providers/attendance_provider.dart';
+
+import 'widgets/appbar.dart';
+import 'widgets/drawer.dart';
 import 'screen/homescreen.dart';
 import 'screen/profilescreen.dart';
 import 'screen/attendancescreen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AttendanceProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -40,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     ProfileScreen(),
-    AttendanceHistoryScreen(),
+    AttendanceScreen(),
   ];
   final List<String> _titles = ['ESS Solecode', 'Profile Employee', 'Attendance History'];
 

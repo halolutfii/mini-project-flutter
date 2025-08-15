@@ -9,6 +9,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: const Color(0xFFF8F9FA),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -17,12 +18,15 @@ class AppDrawer extends StatelessWidget {
               color: Color(0xFF2E3A59),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(Icons.verified_user, color: Colors.white, size: 48),
+                const CircleAvatar(
+                  radius: 35,
+                  backgroundImage: AssetImage('assets/images/lutfi.jpeg'),
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  'ESS Solecode',
+                  'Lutfi Cahya Nugraha',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 18,
@@ -30,7 +34,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Employee App',
+                  'Software Engineer',
                   style: GoogleFonts.poppins(
                     color: Colors.white70,
                     fontSize: 14,

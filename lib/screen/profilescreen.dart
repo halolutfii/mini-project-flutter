@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr_attendance_tracker_app/components/footer.dart';
+import 'package:hr_attendance_tracker_app/widgets/footer.dart';
 
 class ProfileScreen extends StatelessWidget {
   // Dummy Data Profil
