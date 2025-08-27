@@ -44,38 +44,50 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
             onTap: () {
-              Navigator.pop(context); // tutup drawer
-              onItemTap(0);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: const [
+                      Icon(Icons.check_circle, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text("Settings Clicked!"),
+                    ],
+                  ),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+            leading: const Icon(Icons.info),
+            title: const Text('About'),
             onTap: () {
-              Navigator.pop(context);
-              onItemTap(1);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_month_rounded),
-            title: const Text('Attendance History'),
-            onTap: () {
-              Navigator.pop(context);
-              onItemTap(2);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.red),
-            ),
-            onTap: () {
-              print('Logout Click!');
-            },
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: const [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text("About Clicked!"),
+                      ],
+                    ),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
           ),
         ],
       ),

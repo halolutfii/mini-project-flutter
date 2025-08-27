@@ -7,6 +7,7 @@ import 'package:hr_attendance_tracker_app/screen/attendancescreen.dart';
 import '../widgets/header.dart';
 import '../widgets/attendance.dart';
 import '../widgets/features.dart';
+import '../widgets/carousel.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -23,7 +24,9 @@ class HomeScreen extends StatelessWidget {
             buildPageHome(context),
             const SizedBox(height: 20),
             Features(),
-            const SizedBox(height: 100),
+            const SizedBox(height: 20),
+            PromoCarousel(),
+            const SizedBox(height: 20),
             Footer()
           ],
         ),
