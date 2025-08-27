@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
 
 import './providers/attendance_provider.dart';
@@ -10,6 +11,8 @@ import 'widgets/drawer.dart';
 import 'screen/homescreen.dart';
 import 'screen/profilescreen.dart';
 import 'screen/attendancescreen.dart';
+
+import 'routes.dart';
 
 void main() {
   runApp(
@@ -35,6 +38,7 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
       home: MainScreen(),
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }
@@ -63,9 +67,24 @@ class _MainScreenState extends State<MainScreen> {
       appBar: CustomAppBar(
         title: _titles[_currentIndex],
         showDrawer: true, 
-        onSettings: () {
-            // aksi saat icon settings diklik
-            print('Settings clicked');
+        onSettings: () {   
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: const [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text("Settings Clicked!"),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              duration: const Duration(seconds: 2),
+            ),
+          );
         },
       ),
       drawer: AppDrawer(

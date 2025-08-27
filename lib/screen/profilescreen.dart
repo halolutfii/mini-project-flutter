@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
 import '../providers/profile_provider.dart';
 import 'updateprofilescreen.dart';
@@ -47,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.edit, color: Color(0xFF2E3A59)),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const UpdateProfileScreen()));
+                  Navigator.pushNamed(context, AppRoutes.updateProfile);
                 },
               ),
             ],
