@@ -1,13 +1,15 @@
-class Attendance {
-  final DateTime checkInTime;
-  final DateTime? checkOutTime;
-  final String date;
-  final String status;
+class AttendanceRequest {
+  final String id;
+  final DateTime date;
+  final String reason;
+  final String request;
+  String status; // Pending, Approved, Rejected
 
-  Attendance({
-    required this.checkInTime,
-    this.checkOutTime,
+  AttendanceRequest({
+    required this.id,
     required this.date,
-    required this.status,
+    required this.reason,
+    required this.request,
+    this.status = "Pending",
   });
 }
