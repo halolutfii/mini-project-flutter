@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/profile.dart';
 
 class ProfileProvider with ChangeNotifier {
-  Profile profile = Profile(
+  Profile _profile = Profile(
     name: "Lutfi Cahya Nugraha",
     position: "Junior Software Engineer",
     department: "IT Development",
@@ -13,17 +13,28 @@ class ProfileProvider with ChangeNotifier {
     image: 'assets/images/lutfi.jpeg',
   );
 
-  File? _selectedImage;
-  File? get selectedImage => _selectedImage;
+  File? selectedImage;
 
-  void setSelectedImage(File image) {
-    _selectedImage = image;
+  Profile get profile => _profile;
+
+  void updateProfile(Profile newProfile) {
+    _profile = newProfile;
     notifyListeners();
   }
 
-  void updateProfile(Profile updatedProfile) {
-    profile = updatedProfile;
-    _selectedImage = null;
+  void updateImage(File image) {
+    selectedImage = image;
     notifyListeners();
+  }
+
+  /// dipakai di UI
+  ImageProvider getProfileImage() {
+    if (selectedImage != null) {
+      return FileImage(selectedImage!);
+    } else if (_profile.image.startsWith("assets/")) {
+      return AssetImage(_profile.image);
+    } else {
+      return FileImage(File(_profile.image));
+    }
   }
 }

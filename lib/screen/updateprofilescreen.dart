@@ -71,12 +71,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     super.dispose();
   }
 
-  Future<void> pickImage(ProfileProvider provider) async {
+  Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      provider.setSelectedImage(File(pickedFile.path));
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      Provider.of<ProfileProvider>(context, listen: false)
+          .updateImage(File(picked.path));
     }
   }
 
@@ -99,44 +99,32 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           child: Column(
             children: [
               // Avatar
-              CircleAvatar(
-                radius: 50,
-                child: ClipOval(
-                  child: provider.selectedImage != null
-                      ? Image.file(
-                          provider.selectedImage!,
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          profile.image,
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: provider.getProfileImage(),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () => _pickImage(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF2E3A59),
+                          shape: BoxShape.circle,
                         ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                onPressed: () => pickImage(provider),
-                icon: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
-                label: const Text(
-                  "Change Photo",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                        child: const Icon(Icons.camera_alt,
+                            color: Colors.white, size: 20),
+                      ),
+                    ),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E3A59),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+                ],
               ),
+              
               const SizedBox(height: 10),
 
               // Full Name
