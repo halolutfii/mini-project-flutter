@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/attendance_provider.dart';
+import '../providers/logs_provider.dart';
 
 class Attendance extends StatelessWidget {
   const Attendance({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final attendanceProvider = Provider.of<AttendanceProvider>(context);
+    final attendanceProvider = Provider.of<LogsProvider>(context);
     final isCheckedIn = attendanceProvider.isCheckedIn;
 
     return Column(

@@ -35,7 +35,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.deepOrange,
+        color: Color(0xFF2E3A59),
       ),
       padding: const EdgeInsets.all(20),
       child: const Center(
