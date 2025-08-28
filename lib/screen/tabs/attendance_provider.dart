@@ -12,7 +12,7 @@ class AttendanceTab extends StatelessWidget {
     final attendanceProvider = Provider.of<AttendanceProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA), // samain bg
+      backgroundColor: const Color(0xFFF8F9FA),
       body: attendanceProvider.requests.isEmpty
           ? const Center(
               child: Text("No attendance requests yet."),
