@@ -6,13 +6,14 @@ import 'package:provider/provider.dart';
 import 'providers/logs_provider.dart';
 import 'providers/attendance_provider.dart';
 import 'providers/shift_provider.dart';
-import './providers/profile_provider.dart';
+import 'providers/user_provider.dart';
 
 import 'widgets/appbar.dart';
 import 'widgets/drawer.dart';
 import 'screen/homescreen.dart';
 import 'screen/profilescreen.dart';
 import 'screen/attendancescreen.dart';
+import 'screen/auth/splashscreen.dart';
 
 import 'routes.dart';
 
@@ -23,7 +24,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => LogsProvider()),
         ChangeNotifierProvider(create: (_) => AttendanceProvider()),
         ChangeNotifierProvider(create: (_) => ShiftProvider()),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: const MyApp(),
     ),
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: MainScreen(),
+      home: SplashScreen(),
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }

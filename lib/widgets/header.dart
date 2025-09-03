@@ -1,15 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/user_provider.dart';
 
 class Header extends StatefulWidget {
-  final String name;
-  final String profileImage; // URL atau path asset gambar
-
-  const Header({
-    Key? key,
-    required this.name,
-    required this.profileImage,
-  }) : super(key: key);
+  const Header({Key? key}) : super(key: key);
 
   @override
   _HeaderState createState() => _HeaderState();
@@ -28,6 +23,12 @@ class _HeaderState extends State<Header> {
         now = DateTime.now();
       });
     });
+
+    // Load user data saat widget pertama kali dibangun
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.loadUser();
+    });
   }
 
   @override
@@ -45,6 +46,9 @@ class _HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final profile = userProvider.profile;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(20),
@@ -60,41 +64,47 @@ class _HeaderState extends State<Header> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Bagian teks
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: userProvider.isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : Row(
               children: [
-                Text(
-                  "${getGreeting()}, ${widget.name}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // Bagian teks
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${getGreeting()}, ${profile?.name ?? 'Guest User'}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        "Have a great day at work!",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  "Have a great day at work!",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+
+                // Foto profil
+                CircleAvatar(
+                  radius: 28,
+                  backgroundImage: profile != null && profile.image.isNotEmpty
+                      ? NetworkImage(profile.image)
+                      : const AssetImage('assets/images/lutfi.jpeg') as ImageProvider,
+                  backgroundColor: Colors.grey[200],
                 ),
               ],
             ),
-          ),
-
-          // Foto profil
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: AssetImage(widget.profileImage),
-            backgroundColor: Colors.grey[200],
-          ),
-        ],
-      ),
     );
   }
 }

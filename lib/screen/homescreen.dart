@@ -17,10 +17,7 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Header(
-              name: "Lutfi Cahya Nugraha",
-              profileImage: "assets/images/lutfi.jpeg", 
-            ),
+            Header(),
             buildPageHome(context),
             const SizedBox(height: 20),
             Features(),
