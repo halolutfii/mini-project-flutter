@@ -1,12 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-import '../models/profile.dart';
-import '../providers/profile_provider.dart';
+import '../models/user.dart';
+import '../providers/user_provider.dart';
 import '../widgets/appbar.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
@@ -45,19 +44,21 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   ];
 
   final phoneMask = MaskTextInputFormatter(
-      mask: '+62 ###-####-####', filter: {"#": RegExp(r'[0-9]')});
+    mask: '+62 ###-####-####',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   @override
   void initState() {
     super.initState();
-    final profile = Provider.of<ProfileProvider>(context, listen: false).profile;
+    final profile = Provider.of<UserProvider>(context, listen: false).profile;
 
-    nameController = TextEditingController(text: profile.name);
-    positionController = TextEditingController(text: profile.position);
-    departmentController = TextEditingController(text: profile.department);
-    emailController = TextEditingController(text: profile.email);
-    phoneController = TextEditingController(text: profile.phone);
-    locationController = TextEditingController(text: profile.location);
+    nameController = TextEditingController(text: profile?.name ?? "");
+    positionController = TextEditingController(text: profile?.position ?? "");
+    departmentController = TextEditingController(text: profile?.department ?? "");
+    emailController = TextEditingController(text: profile?.email ?? "");
+    phoneController = TextEditingController(text: profile?.phone ?? "");
+    locationController = TextEditingController(text: profile?.location ?? "");
   }
 
   @override
@@ -75,14 +76,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      Provider.of<ProfileProvider>(context, listen: false)
-          .updateImage(File(picked.path));
+      Provider.of<UserProvider>(context, listen: false)
+          .setSelectedImage(File(picked.path));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProfileProvider>(context);
+    final provider = Provider.of<UserProvider>(context);
     final profile = provider.profile;
 
     return Scaffold(
@@ -117,15 +118,18 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           color: Color(0xFF2E3A59),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.camera_alt,
-                            color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              
-              const SizedBox(height: 10),
+
+              const SizedBox(height: 16),
 
               // Full Name
               TextFormField(
@@ -143,7 +147,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: "Position"),
                 dropdownColor: Colors.white,
-                value: positionController.text.isNotEmpty ? positionController.text : null,
+                value: positionController.text.isNotEmpty
+                    ? positionController.text
+                    : null,
                 items: positions
                     .map((pos) => DropdownMenuItem(
                           value: pos,
@@ -156,15 +162,16 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 validator: (value) =>
                     value == null || value.isEmpty ? "Please select a position" : null,
               ),
-
               const SizedBox(height: 12),
 
               // Department
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Department'),
                 dropdownColor: Colors.white,
-                value: departmentController.text.isNotEmpty ? departmentController.text : null,
-                items: ['IT Development', 'HR', 'Finance', 'Marketing']
+                value: departmentController.text.isNotEmpty
+                    ? departmentController.text
+                    : null,
+                items: departments
                     .map((dep) => DropdownMenuItem(
                           value: dep,
                           child: Text(dep),
@@ -175,11 +182,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                     departmentController.text = val ?? '';
                   });
                 },
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please select a department'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please select a department' : null,
               ),
-
               const SizedBox(height: 12),
 
               // Email
@@ -203,7 +208,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 decoration: const InputDecoration(labelText: "Phone"),
                 validator: (val) {
                   if (val == null || val.isEmpty) return "Phone is required";
-                  if (!phoneMask.isFill()) return "Phone format: +62 812-3456-7890";
+                  if (!phoneMask.isFill()) {
+                    return "Phone format: +62 812-3456-7890";
+                  }
                   return null;
                 },
               ),
@@ -217,16 +224,16 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
               const SizedBox(height: 20),
 
               // Buttons
-              isSaving
+              isSaving || provider.isLoading
                   ? const CircularProgressIndicator()
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Save Button
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2E3A59),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -235,7 +242,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             if (_formKey.currentState!.validate()) {
                               setState(() => isSaving = true);
 
-                              final updatedProfile = Profile(
+                              final updatedUser = User(
+                                id: profile?.id ?? "",
                                 name: nameController.text,
                                 position: positionController.text,
                                 department: departmentController.text,
@@ -244,34 +252,35 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                 location: locationController.text,
                                 image: provider.selectedImage != null
                                     ? provider.selectedImage!.path
-                                    : provider.profile.image,
+                                    : profile?.image ?? "",
+                                role: profile?.role ?? "user",
                               );
 
-                              await Future.delayed(const Duration(seconds: 1));
-
-                              provider.updateProfile(updatedProfile);
+                              await provider.updateProfile(updatedUser);
 
                               setState(() => isSaving = false);
 
-                              Navigator.pop(context);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Row(
-                                    children: const [
-                                      Icon(Icons.check_circle, color: Colors.white),
-                                      SizedBox(width: 8),
-                                      Text("Profile updated successfully!"),
-                                    ],
+                              if (mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: const [
+                                        Icon(Icons.check_circle,
+                                            color: Colors.white),
+                                        SizedBox(width: 8),
+                                        Text("Profile updated successfully!"),
+                                      ],
+                                    ),
+                                    backgroundColor: Colors.green,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    duration: const Duration(seconds: 2),
                                   ),
-                                  backgroundColor: Colors.green,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
+                                );
+                              }
                             }
                           },
                           child: const Text(
@@ -283,7 +292,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             ),
                           ),
                         ),
-
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
@@ -296,51 +304,31 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           onPressed: () {
                             showDialog(
                               context: context,
-                              builder: (ctx) => Theme(
-                                data: Theme.of(context).copyWith(
-                                  dialogBackgroundColor: Colors.white,
-                                  colorScheme: const ColorScheme.light(
-                                    primary: Color(0xFF2E3A59),
-                                    onPrimary: Colors.white,
-                                    onSurface: Colors.black,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text("Cancel"),
+                                content: const Text(
+                                    "Are you sure you want to cancel?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text("No"),
                                   ),
-                                ),
-                                child: AlertDialog(
-                                  title: const Text(
-                                    "Cancel",
-                                    style: TextStyle(color: Colors.black),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Yes"),
                                   ),
-                                  content: const Text(
-                                    "Are you sure you want to cancel?",
-                                    style: TextStyle(color: Colors.black87),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx),
-                                      child: const Text(
-                                        "No",
-                                        style: TextStyle(color: Color(0xFF2E3A59)),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(ctx);
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text(
-                                        "Yes",
-                                        style: TextStyle(color: Color(0xFF2E3A59)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                ],
                               ),
                             );
                           },
                           child: const Text(
                             'Cancel',
-                            style:
-                                TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
