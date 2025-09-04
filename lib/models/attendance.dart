@@ -1,15 +1,28 @@
-class AttendanceRequest {
+class Attendance {
   final String id;
+  final String user;
   final DateTime date;
-  final String reason;
-  final String request;
-  String status; // Pending, Approved, Rejected
+  final DateTime clockIn;
+  final DateTime? clockOut; 
+  final String status;
 
-  AttendanceRequest({
+  Attendance({
     required this.id,
+    required this.user,
     required this.date,
-    required this.reason,
-    required this.request,
-    this.status = "Pending",
+    required this.clockIn,
+    this.clockOut,
+    required this.status,
   });
+
+  factory Attendance.fromJson(Map<String, dynamic> json) {
+    return Attendance(
+      id: json['_id'] ?? "",
+      user: json['user'] ?? "",
+      date: DateTime.parse(json['date']),
+      clockIn: DateTime.parse(json['clock_in']),
+      clockOut: json['clock_out'] != null ? DateTime.parse(json['clock_out']) : null,
+      status: json['status'] ?? "Present",
+    );
+  }
 }

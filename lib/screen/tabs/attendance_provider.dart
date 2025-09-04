@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
-import '../../providers/attendance_provider.dart';
+import '../../providers/attendanceRequest_provider.dart';
 import '../attendance_request.dart';
 
 class AttendanceTab extends StatelessWidget {
@@ -9,7 +9,7 @@ class AttendanceTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final attendanceProvider = Provider.of<AttendanceProvider>(context);
+    final attendanceProvider = Provider.of<AttendanceRequestProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),

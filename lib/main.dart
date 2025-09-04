@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
 
-import 'providers/logs_provider.dart';
 import 'providers/attendance_provider.dart';
+import 'providers/attendanceRequest_provider.dart';
 import 'providers/shift_provider.dart';
 import 'providers/user_provider.dart';
 
@@ -21,8 +21,8 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LogsProvider()),
-        ChangeNotifierProvider(create: (_) => AttendanceProvider()),
+        ChangeNotifierProvider(create: (_) => AttendanceProvider()..loadAttendance()),
+        ChangeNotifierProvider(create: (_) => AttendanceRequestProvider()),
         ChangeNotifierProvider(create: (_) => ShiftProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
