@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/logs_provider.dart';
+import '../../providers/attendance_provider.dart';
 
-class LogsTab extends StatelessWidget {
+class LogsTab extends StatefulWidget {
   const LogsTab({super.key});
 
   @override
+  State<LogsTab> createState() => _LogsTabState();
+}
+
+class _LogsTabState extends State<LogsTab> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<AttendanceProvider>(context, listen: false).loadAttendance();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final logsProvider = Provider.of<LogsProvider>(context);
-    final records = logsProvider.records;
+    final attendanceProvider = context.watch<AttendanceProvider>();
+    final records = attendanceProvider.records;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: records.isEmpty
-          ? const Center(
-              child: Text("No logs yet."),
-            )
+          ? const Center(child: Text("No logs yet."))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: records.length,
@@ -40,19 +51,12 @@ class LogsTab extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: (log.checkOutTime != null
-                                  ? Colors.red
-                                  : Colors.green)
-                              .withOpacity(0.1),
+                          color: (log.clockOut != null ? Colors.red : Colors.green).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
-                          log.checkOutTime != null
-                              ? Icons.logout
-                              : Icons.login,
-                          color: log.checkOutTime != null
-                              ? Colors.red
-                              : Colors.green,
+                          log.clockOut != null ? Icons.logout : Icons.login,
+                          color: log.clockOut != null ? Colors.red : Colors.green,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -61,7 +65,7 @@ class LogsTab extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Date: ${log.date}",
+                              "Date: ${log.date.toLocal().toString().split(' ')[0]}",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -69,8 +73,8 @@ class LogsTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              "Check-in: ${_formatTime(log.checkInTime)}"
-                              "${log.checkOutTime != null ? "\nCheck-out: ${_formatTime(log.checkOutTime!)}" : ""}",
+                              "Check-in: ${_formatTime(log.clockIn)}"
+                              "\n${log.clockOut != null ? "Check-out: ${_formatTime(log.clockOut!)}" : "Belum Check-out"}",
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF6B7280),
@@ -80,12 +84,10 @@ class LogsTab extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        log.status,
+                        log.status ?? "Present",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: log.status == "Present"
-                              ? Colors.green
-                              : Colors.red,
+                          color: log.status == "Present" ? Colors.green : Colors.red,
                         ),
                       ),
                     ],

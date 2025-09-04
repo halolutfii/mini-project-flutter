@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/attendance.dart';
-import '../providers/attendance_provider.dart';
+import '../models/attendanceRequest.dart';
+import '../providers/attendanceRequest_provider.dart';
 
 class AttendanceRequestScreen extends StatefulWidget {
   const AttendanceRequestScreen({super.key});
@@ -36,7 +36,7 @@ class _AttendanceRequestScreenState extends State<AttendanceRequestScreen> {
         request: _selectedRequestType!,
       );
 
-      Provider.of<AttendanceProvider>(context, listen: false).addRequest(newRequest);
+      Provider.of<AttendanceRequestProvider>(context, listen: false).addRequest(newRequest);
 
       setState(() => isSaving = false);
 
