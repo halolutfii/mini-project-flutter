@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'providers/attendance_provider.dart';
 import 'providers/attendanceRequest_provider.dart';
 import 'providers/shift_provider.dart';
+import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
 
 import 'widgets/appbar.dart';
@@ -13,17 +15,27 @@ import 'widgets/drawer.dart';
 import 'screen/homescreen.dart';
 import 'screen/profilescreen.dart';
 import 'screen/attendancescreen.dart';
-import 'screen/auth/splashscreen.dart';
+import 'screen/auth/loginscreen.dart';
 
 import 'routes.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+          options: FirebaseOptions(
+              projectId: 'strategic-altar-471707-a5', // Project ID
+              messagingSenderId: '528786211815',//Project Number
+              apiKey: 'AIzaSyDgrkvs5epefj92MnLDmZACLqg_xz4oEm4',//Web API Key
+              appId: '1:528786211815:android:8d3e462dc2598eec093342'), // App ID
+      );
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AttendanceProvider()..loadAttendance()),
         ChangeNotifierProvider(create: (_) => AttendanceRequestProvider()),
         ChangeNotifierProvider(create: (_) => ShiftProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: const MyApp(),
@@ -42,7 +54,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: SplashScreen(),
+      home: LoginScreen(),
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }
@@ -92,9 +104,9 @@ class _MainScreenState extends State<MainScreen> {
           );
         },
       ),
-      drawer: AppDrawer(
-        onItemTap: _changeTab,
-      ),
+      // drawer: AppDrawer(
+      //   onItemTap: _changeTab,
+      // ),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF2E3A59),

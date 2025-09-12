@@ -1,50 +1,50 @@
-class User {
-  final String id;
+class Users {
+  final String uid; // Firebase Auth UID = document ID
   final String name;
+  final String? profession;
   final String email;
-  final String department;
-  final String position;
-  final String image;
-  final String phone;
-  final String location;
-  final String role;
+  final String? phone;
+  final String? address;
+  final String? bio;
+  final String? photo; // simpan path foto (String)
+  final String role; // 'admin' atau 'member'
 
-  User({
-    required this.id,
+  Users({
+    required this.uid,
     required this.name,
     required this.email,
-    required this.department,
-    required this.position,
-    required this.image,
-    required this.phone,
-    required this.location,
+    this.profession,
+    this.photo,
+    this.phone,
+    this.address,
+    this.bio,
     required this.role,
   });
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['_id'] ?? '',
+  factory Users.fromMap(Map<String, dynamic> map) {
+    return Users(
+      uid: map['uid'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
-      department: map['department'] ?? '',
-      position: map['position'] ?? '',
-      image: map['image'] ?? '',
+      profession: map['profession'] ?? '',
+      photo: map['photo'] ?? '',
       phone: map['phone'] ?? '',
-      location: map['location'] ?? '',
-      role: map['role'] ?? '',
+      address: map['address'] ?? '',
+      bio: map['bio'] ?? '',
+      role: map['role'] ?? 'member',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': id,
+      'uid': uid,
       'name': name,
+      'profession': profession,
       'email': email,
-      'department': department,
-      'position': position,
-      'image': image,
       'phone': phone,
-      'location': location,
+      'address': address,
+      'bio': bio,
+      'photo': photo,
       'role': role,
     };
   }

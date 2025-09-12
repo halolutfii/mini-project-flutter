@@ -1,24 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
-import 'api_service.dart';
 
 class UserService {
-  final ApiService _apiService = ApiService(); // pakai singleton
+  final CollectionReference profiles =
+      FirebaseFirestore.instance.collection('users');
 
-  Future<User> fetchUser() async {
-    final response = await _apiService.getCurrentUser();
-    return User.fromMap(response.data['user']);
+  Future<void> createUserProfile(Users profile) async {
+    await profiles.doc(profile.uid).set(profile.toMap());
   }
 
-  Future<User> updateUser(User user) async {
-    final response = await _apiService.dio.put(
-      '/auth/update', // sesuaikan dengan endpoint backend kamu
-      data: user.toMap(),
-    );
-
-    if (response.statusCode == 200) {
-      return User.fromMap(response.data['user']);
-    } else {
-      throw Exception('Failed to update user');
+  Future<Users?> getUserProfile(String uid) async {
+    final doc = await profiles.doc(uid).get();
+    if (doc.exists) {
+      return Users.fromMap(doc.data() as Map<String, dynamic>);
     }
+    return null;
+  }
+
+  Future<void> updateUserProfile(Users profile) async {
+    await profiles.doc(profile.uid).update(profile.toMap());
+  }
+
+  Future<bool> checkUserExists(String uid) async {
+    final doc = await profiles.doc(uid).get();
+    return doc.exists;
   }
 }
