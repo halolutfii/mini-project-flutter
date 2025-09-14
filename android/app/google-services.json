@@ -1,78 +1,33 @@
 {
   "project_info": {
-    "project_number": "528786211815",
-    "project_id": "strategic-altar-471707-a5",
-    "storage_bucket": "strategic-altar-471707-a5.firebasestorage.app"
+    "project_number": "716285922483",
+    "project_id": "backend-hr-472113",
+    "storage_bucket": "backend-hr-472113.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:528786211815:android:8d3e462dc2598eec093342",
+        "mobilesdk_app_id": "1:716285922483:android:16d68e2b73707fb322b4c6",
         "android_client_info": {
-          "package_name": "com.example.hr_attendance_tracker_app"
+          "package_name": "com.example.hr_attendance_tracker_v2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "528786211815-ttpcej8libuh8kr682gsd1n9uglqftkn.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.hr_attendance_tracker_app",
-            "certificate_hash": "8ddeb1e5c42cb4d478f4a016670fd9281fad5adf"
-          }
-        },
-        {
-          "client_id": "528786211815-664tmmcfmkmmf9rtplfh2locp2i3l7dh.apps.googleusercontent.com",
+          "client_id": "716285922483-pggpuju3bp03g4q7n33890e657vq5673.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDgrkvs5epefj92MnLDmZACLqg_xz4oEm4"
+          "current_key": "AIzaSyBpa0N-gkTEfay6mLjn3mCBoLWpdlE9AyU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "528786211815-664tmmcfmkmmf9rtplfh2locp2i3l7dh.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:528786211815:android:96f9f0cf6ecfff9a093342",
-        "android_client_info": {
-          "package_name": "com.example.my_portofolio_app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "528786211815-8ta4l19qv8b0omsh0afvtq6pedtvv8hg.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.my_portofolio_app",
-            "certificate_hash": "8ddeb1e5c42cb4d478f4a016670fd9281fad5adf"
-          }
-        },
-        {
-          "client_id": "528786211815-664tmmcfmkmmf9rtplfh2locp2i3l7dh.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDgrkvs5epefj92MnLDmZACLqg_xz4oEm4"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "528786211815-664tmmcfmkmmf9rtplfh2locp2i3l7dh.apps.googleusercontent.com",
+              "client_id": "716285922483-pggpuju3bp03g4q7n33890e657vq5673.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

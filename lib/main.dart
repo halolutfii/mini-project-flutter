@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr_attendance_tracker_app/providers/admin_provider.dart';
 import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +10,7 @@ import 'providers/attendanceRequest_provider.dart';
 import 'providers/shift_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/admin_provider.dart';
 
 import 'widgets/appbar.dart';
 import 'widgets/drawer.dart';
@@ -24,10 +26,10 @@ void main() async {
   
   await Firebase.initializeApp(
           options: FirebaseOptions(
-              projectId: 'strategic-altar-471707-a5', // Project ID
-              messagingSenderId: '528786211815',//Project Number
-              apiKey: 'AIzaSyDgrkvs5epefj92MnLDmZACLqg_xz4oEm4',//Web API Key
-              appId: '1:528786211815:android:8d3e462dc2598eec093342'), // App ID
+              projectId: 'backend-hr-472113', // Project ID
+              messagingSenderId: '716285922483',//Project Number
+              apiKey: 'AIzaSyBpa0N-gkTEfay6mLjn3mCBoLWpdlE9AyU',//Web API Key
+              appId: '1:716285922483:android:16d68e2b73707fb322b4c6'), // App ID
       );
   runApp(
     MultiProvider(
@@ -37,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ShiftProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
       ],
       child: const MyApp(),
     ),
