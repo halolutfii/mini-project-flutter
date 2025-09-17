@@ -1,30 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr_attendance_tracker_app/providers/admin_provider.dart';
 import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'providers/attendance_provider.dart';
 import 'providers/attendanceRequest_provider.dart';
 import 'providers/shift_provider.dart';
+import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/admin_provider.dart';
 
 import 'widgets/appbar.dart';
 import 'widgets/drawer.dart';
 import 'screen/homescreen.dart';
 import 'screen/profilescreen.dart';
 import 'screen/attendancescreen.dart';
-import 'screen/auth/splashscreen.dart';
+import 'screen/auth/loginscreen.dart';
 
 import 'routes.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+          options: FirebaseOptions(
+              projectId: 'backend-hr-472113', // Project ID
+              messagingSenderId: '716285922483',//Project Number
+              apiKey: 'AIzaSyBpa0N-gkTEfay6mLjn3mCBoLWpdlE9AyU',//Web API Key
+              appId: '1:716285922483:android:16d68e2b73707fb322b4c6'), // App ID
+      );
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AttendanceProvider()..loadAttendance()),
         ChangeNotifierProvider(create: (_) => AttendanceRequestProvider()),
         ChangeNotifierProvider(create: (_) => ShiftProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
       ],
       child: const MyApp(),
     ),
@@ -42,7 +57,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: SplashScreen(),
+      initialRoute: AppRoutes.splashscreen, 
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }

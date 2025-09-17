@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:provider/provider.dart';
 
-import '../models/user.dart';
+import '../providers/auth_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/appbar.dart';
 
@@ -17,60 +16,7 @@ class UpdateProfileScreen extends StatefulWidget {
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  late TextEditingController nameController;
-  late TextEditingController positionController;
-  late TextEditingController departmentController;
-  late TextEditingController emailController;
-  late TextEditingController phoneController;
-  late TextEditingController locationController;
-
   bool isSaving = false;
-
-  final List<String> positions = [
-    "Junior Software Engineer",
-    "Software Engineer",
-    "Senior Software Engineer",
-    "Team Lead",
-    "HR",
-  ];
-
-  final List<String> departments = [
-    "IT Development",
-    "HR",
-    "Finance",
-    "Marketing",
-    "Sales",
-  ];
-
-  final phoneMask = MaskTextInputFormatter(
-    mask: '+62 ###-####-####',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    final profile = Provider.of<UserProvider>(context, listen: false).profile;
-
-    nameController = TextEditingController(text: profile?.name ?? "");
-    positionController = TextEditingController(text: profile?.position ?? "");
-    departmentController = TextEditingController(text: profile?.department ?? "");
-    emailController = TextEditingController(text: profile?.email ?? "");
-    phoneController = TextEditingController(text: profile?.phone ?? "");
-    locationController = TextEditingController(text: profile?.location ?? "");
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    positionController.dispose();
-    departmentController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    locationController.dispose();
-    super.dispose();
-  }
 
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
@@ -84,7 +30,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<UserProvider>(context);
-    final profile = provider.profile;
+    final user = provider.user;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -105,7 +51,16 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: provider.getProfileImage(),
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: provider.selectedImage != null
+                        ? FileImage(provider.selectedImage!)
+                        : (user?.photo != null && user!.photo!.isNotEmpty
+                            ? NetworkImage(user.photo!)
+                            : null) as ImageProvider<Object>?,
+                    child: provider.selectedImage == null &&
+                            (user?.photo == null || user!.photo!.isEmpty)
+                        ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                        : null,
                   ),
                   Positioned(
                     bottom: 0,
@@ -133,7 +88,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
               // Full Name
               TextFormField(
-                controller: nameController,
+                controller: provider.nameController,
                 decoration: const InputDecoration(labelText: "Full Name"),
                 validator: (val) {
                   if (val == null || val.isEmpty) return "Full Name is required";
@@ -143,83 +98,37 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Position
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Position"),
-                dropdownColor: Colors.white,
-                value: positionController.text.isNotEmpty
-                    ? positionController.text
-                    : null,
-                items: positions
-                    .map((pos) => DropdownMenuItem(
-                          value: pos,
-                          child: Text(pos),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) positionController.text = val;
-                },
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Please select a position" : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Department
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Department'),
-                dropdownColor: Colors.white,
-                value: departmentController.text.isNotEmpty
-                    ? departmentController.text
-                    : null,
-                items: departments
-                    .map((dep) => DropdownMenuItem(
-                          value: dep,
-                          child: Text(dep),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() {
-                    departmentController.text = val ?? '';
-                  });
-                },
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Please select a department' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Email
+              // Profession
               TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Email"),
-                validator: (val) {
-                  if (val == null || val.isEmpty) return "Email is required";
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
-                      .hasMatch(val)) return "Enter valid email";
-                  return null;
-                },
+                controller: provider.professionController,
+                decoration: const InputDecoration(labelText: "Profession"),
+                validator: (val) =>
+                    val == null || val.isEmpty ? "Profession required" : null,
               ),
               const SizedBox(height: 12),
 
               // Phone
               TextFormField(
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [phoneMask],
+                controller: provider.phoneController,
                 decoration: const InputDecoration(labelText: "Phone"),
-                validator: (val) {
-                  if (val == null || val.isEmpty) return "Phone is required";
-                  if (!phoneMask.isFill()) {
-                    return "Phone format: +62 812-3456-7890";
-                  }
-                  return null;
-                },
+                keyboardType: TextInputType.phone,
+                validator: (val) =>
+                    val == null || val.isEmpty ? "Phone required" : null,
               ),
               const SizedBox(height: 12),
 
-              // Location
+              // Address
               TextFormField(
-                controller: locationController,
-                decoration: const InputDecoration(labelText: "Location"),
+                controller: provider.addressController,
+                decoration: const InputDecoration(labelText: "Address"),
+              ),
+              const SizedBox(height: 12),
+
+              // Bio
+              TextFormField(
+                controller: provider.bioController,
+                decoration: const InputDecoration(labelText: "Bio"),
+                maxLines: 3,
               ),
               const SizedBox(height: 20),
 
@@ -242,42 +151,17 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             if (_formKey.currentState!.validate()) {
                               setState(() => isSaving = true);
 
-                              final updatedUser = User(
-                                id: profile?.id ?? "",
-                                name: nameController.text,
-                                position: positionController.text,
-                                department: departmentController.text,
-                                email: emailController.text,
-                                phone: phoneController.text,
-                                location: locationController.text,
-                                image: provider.selectedImage != null
-                                    ? provider.selectedImage!.path
-                                    : profile?.image ?? "",
-                                role: profile?.role ?? "user",
-                              );
-
-                              await provider.updateProfile(updatedUser);
+                              await provider.updateProfile();
 
                               setState(() => isSaving = false);
 
                               if (mounted) {
                                 Navigator.pop(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: const [
-                                        Icon(Icons.check_circle,
-                                            color: Colors.white),
-                                        SizedBox(width: 8),
+                                  const SnackBar(
+                                    content:
                                         Text("Profile updated successfully!"),
-                                      ],
-                                    ),
                                     backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    duration: const Duration(seconds: 2),
                                   ),
                                 );
                               }

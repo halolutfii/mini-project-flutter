@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "716285922483",
+    "project_id": "backend-hr-472113",
+    "storage_bucket": "backend-hr-472113.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716285922483:android:16d68e2b73707fb322b4c6",
+        "android_client_info": {
+          "package_name": "com.example.hr_attendance_tracker_v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "716285922483-pggpuju3bp03g4q7n33890e657vq5673.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpa0N-gkTEfay6mLjn3mCBoLWpdlE9AyU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "716285922483-pggpuju3bp03g4q7n33890e657vq5673.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

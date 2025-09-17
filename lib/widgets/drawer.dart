@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/auth_provider.dart';
 import '../providers/user_provider.dart';
 import '../screen/auth/loginscreen.dart';
 
@@ -11,19 +12,24 @@ class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key, required this.onItemTap});
 
   Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token'); // hapus token
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.signOut();
 
-    // redirect ke login screen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    if (context.mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final profile = context.watch<UserProvider>().profile;
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+
+    final userProvider = Provider.of<UserProvider>(context);
+    final profile = userProvider.user;
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -37,9 +43,16 @@ class AppDrawer extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 38,
-                  backgroundImage: profile != null && profile.image.isNotEmpty
-                      ? NetworkImage(profile.image)
-                      : const AssetImage('assets/images/lutfi.jpeg') as ImageProvider,
+                  backgroundColor: Colors.grey[200],
+                  backgroundImage: user?.photoURL != null
+                      ? NetworkImage(user!.photoURL!)
+                      : (profile != null && profile.photo != null && profile.photo!.isNotEmpty
+                          ? NetworkImage(profile.photo!)
+                          : null) as ImageProvider<Object>?,
+                  child: (user?.photoURL == null &&
+                          (profile == null || profile.photo == null || profile.photo!.isEmpty))
+                      ? const Icon(Icons.person, size: 38, color: Colors.grey)
+                      : null,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -51,7 +64,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  profile?.position ?? 'Position',
+                  profile?.profession ?? 'Profession',
                   style: GoogleFonts.poppins(
                     color: Colors.white70,
                     fontSize: 14,
@@ -60,7 +73,7 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-           ListTile(
+          ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {
@@ -88,23 +101,23 @@ class AppDrawer extends StatelessWidget {
             title: const Text('About'),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: const [
-                        Icon(Icons.check_circle, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text("About Clicked!"),
-                      ],
-                    ),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    duration: const Duration(seconds: 2),
+                SnackBar(
+                  content: Row(
+                    children: const [
+                      Icon(Icons.check_circle, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text("About Clicked!"),
+                    ],
                   ),
-                );
-              },
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
           ),
           const Divider(),
           ListTile(

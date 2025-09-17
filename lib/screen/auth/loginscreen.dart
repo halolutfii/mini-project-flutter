@@ -4,9 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../main.dart';
 import '../../widgets/footer.dart';
+
+import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/api_service.dart';
-import 'registerscreen.dart';
+import '../../routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,40 +18,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final ApiService apiService = ApiService(); // pakai instance yang sama
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool loading = false;
-
-  Future<void> login() async {
-    setState(() => loading = true);
-    try {
-      final response = await apiService.login(
-        emailController.text.trim(),
-        passwordController.text.trim(),
-      );
-
-      if (response.statusCode == 200) {
-        print("Login berhasil, cookie tersimpan!");
-        await context.read<UserProvider>().loadUser(); // fetchUser pakai cookie sama
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => MainScreen()),
-        );
-      } else {
-        throw Exception("Login gagal");
-      }
-    } catch (e) {
-      print("Login error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login gagal, cek email/password!')),
-      );
-    } finally {
-      setState(() => loading = false);
-    }
-  }
-
 
   Widget buildTextField(String label, TextEditingController controller, {bool obscure = false}) {
     return TextField(
@@ -72,36 +43,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: const Text(
-          "Login",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF2E3A59),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
+            const SizedBox(height: 40),
+            Image.asset("assets/images/solecode.png", height: 180,),
             const SizedBox(height: 20),
-            Text(
-              'Welcome Back',
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF2E3A59),
-              ),
-            ),
-            const SizedBox(height: 20),
+
+            // Card Login
             Card(
               color: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -110,14 +64,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    buildTextField("Email", emailController),
+                    // EMAIL INPUT
+                    buildTextField("Email", _emailController),
                     const SizedBox(height: 12),
-                    buildTextField("Password", passwordController, obscure: true),
+
+                    // PASSWORD INPUT
+                    buildTextField("Password", _passwordController, obscure: true),
                     const SizedBox(height: 20),
+
+                    // LOGIN BUTTON
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: loading ? null : login,
+                            onPressed: loading ? null :() async { 
+                            setState(() => loading = true); 
+
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text.trim();
+                            final profileProvider = Provider.of<UserProvider>(context, listen: false);
+                            final success =
+                                await authProvider.signInWithEmail(email, password, profileProvider);
+
+                            if (success && profileProvider.user != null) {
+                              if (profileProvider.user!.role == "admin") {
+                                Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard);
+                              } else {
+                                Navigator.pushReplacementNamed(context, AppRoutes.main);
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        authProvider.errorMessage ?? "Login failed")),
+                              );
+                            }
+
+                            setState(() => loading = false);
+                          },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2E3A59),
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -137,23 +120,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                        );
-                      },
-                      child: Text(
-                        "Belum punya akun? Register",
-                        style: GoogleFonts.poppins(color: const Color(0xFF2E3A59)),
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
+
             const SizedBox(height: 12),
             Footer(),
           ],

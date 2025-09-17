@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/user_provider.dart';
 
 class Header extends StatefulWidget {
@@ -23,12 +24,6 @@ class _HeaderState extends State<Header> {
         now = DateTime.now();
       });
     });
-
-    // Load user data saat widget pertama kali dibangun
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.loadUser();
-    });
   }
 
   @override
@@ -46,8 +41,10 @@ class _HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
     final userProvider = Provider.of<UserProvider>(context);
-    final profile = userProvider.profile;
+    final profile = userProvider.user;
 
     return Container(
       width: double.infinity,
@@ -64,47 +61,45 @@ class _HeaderState extends State<Header> {
           ),
         ],
       ),
-      child: userProvider.isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            )
-          : Row(
+      child: Row(
+        children: [
+          // Bagian teks
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Bagian teks
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${getGreeting()}, ${profile?.name ?? 'Guest User'}",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        "Have a great day at work!",
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
+                Text(
+                  "${getGreeting()}, ${profile?.name ?? 'Guest User'}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                // Foto profil
-                CircleAvatar(
-                  radius: 28,
-                  backgroundImage: profile != null && profile.image.isNotEmpty
-                      ? NetworkImage(profile.image)
-                      : const AssetImage('assets/images/lutfi.jpeg') as ImageProvider,
-                  backgroundColor: Colors.grey[200],
+                const SizedBox(height: 6),
+                const Text(
+                  "Have a great day at work!",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
+          ),
+
+          // Foto profil
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: Colors.grey[200],
+            backgroundImage:
+                user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
+            child: user?.photoURL == null
+                ? const Icon(Icons.person, size: 28, color: Colors.grey)
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }

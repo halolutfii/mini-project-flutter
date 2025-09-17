@@ -1,52 +1,51 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../main.dart';
-import 'loginscreen.dart';
-import '../../providers/user_provider.dart';
+import '../../routes.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _visible = false;
+
   @override
   void initState() {
     super.initState();
-    _checkLogin();
-  }
 
-  Future<void> _checkLogin() async {
-    await Future.delayed(const Duration(seconds: 2));
+    // Delay sebentar lalu mulai animasi
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        _visible = true;
+      });
+    });
 
-    try {
-      await context.read<UserProvider>().loadUser();
-      if (context.read<UserProvider>().profile != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => MainScreen()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => LoginScreen()),
-        );
-      }
-    } catch (e) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
-      );
-    }
+    // Setelah 3 detik, pindah ke halaman berikutnya
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pushNamed(context, AppRoutes.login);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: AnimatedOpacity(
+          opacity: _visible ? 1.0 : 0.0,
+          duration: const Duration(seconds: 2),
+          child: AnimatedContainer(
+            duration: const Duration(seconds: 2),
+            width: _visible ? 150 : 50,  // scaling effect
+            height: _visible ? 150 : 50,
+            child: Image.asset(
+              "assets/images/solecode.png", // ganti dengan path gambar kamu
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
