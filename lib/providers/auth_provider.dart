@@ -26,11 +26,8 @@ class AuthProvider extends ChangeNotifier {
 
       _errorMessage = null;
       notifyListeners();
-      print('asdasdasd');
       return true;
     } catch (e) {
-      print('asdasd');
-      print(e);
       _errorMessage = e.toString();
       notifyListeners();
       return false;

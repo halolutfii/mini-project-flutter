@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
@@ -8,82 +9,171 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<UserProvider>(context);
-
-    if (provider.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (provider.user == null) {
-      return const Scaffold(
-        body: Center(child: Text("No profile data found.")),
-      );
-    }
-
-    final profile = provider.user!;
-
     return Scaffold(
-      appBar: AppBar(title: const Text("My Profile")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage:
-                  profile.photo != null ? NetworkImage(profile.photo!) : null,
-              child: profile.photo == null
-                  ? const Icon(Icons.person, size: 50)
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              profile.name,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            if (profile.profession != null)
-              Text(
-                profile.profession!,
-                style: TextStyle(color: Colors.grey[700]),
-              ),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.email),
-              title: Text(profile.email),
-            ),
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: Consumer<UserProvider>(
+        builder: (context, profileProvider, child) {
+          if (profileProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            if (profile.phone != null)
-              ListTile(
-                leading: const Icon(Icons.phone),
-                title: Text(profile.phone!),
-              ),
-            if (profile.address != null)
-              ListTile(
-                leading: const Icon(Icons.location_on),
-                title: Text(profile.address!),
-              ),
-            if (profile.bio != null)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(profile.bio!),
-              ),
-            const SizedBox(height: 20),
-            ElevatedButton(
+          final profile = profileProvider.user;
+          if (profile == null) {
+            return const Center(child: Text("No profile data found."));
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              children: [
+                buildProfileHeader(context, profileProvider, profile),
+                const SizedBox(height: 20),
+                buildContactInfo(profile),
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildProfileHeader(BuildContext context, UserProvider provider, profile) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Edit button
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: const Icon(Icons.edit, color: Color(0xFF2E3A59)),
               onPressed: () {
                 Navigator.push(
-                  context,  MaterialPageRoute(
-                    builder: (_) => const EditProfileScreen(),
-                  ),
+                  context,
+                  MaterialPageRoute(builder: (_) => const UpdateProfileScreen()),
                 );
               },
-              child: const Text("Edit Profile"),
-            )
-          ],
-        ),
+            ),
+          ),
+
+          // Avatar + Name
+          Center(
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.grey[200],
+                  backgroundImage: provider.selectedImage != null
+                      ? FileImage(provider.selectedImage!)
+                      : (profile != null && profile.photo != null && profile.photo!.isNotEmpty
+                          ? NetworkImage(profile.photo!)
+                          : null) as ImageProvider<Object>?,
+                  child: (provider.selectedImage == null &&
+                          (profile == null || profile.photo == null || profile.photo!.isEmpty))
+                      ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                      : null,
+                ),
+                const SizedBox(height: 10),
+                Text(profile.name,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                if (profile.profession != null && profile.profession!.isNotEmpty)
+                  Text(profile.profession!,
+                      style: const TextStyle(fontSize: 16, color: Colors.black87)),
+                const SizedBox(height: 8),
+                if (profile.bio != null && profile.bio!.isNotEmpty)
+                Text(
+                  profile.bio!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 14, color: Colors.grey, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget buildContactInfo(profile) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Contact Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+              icon: Icons.email_outlined, label: 'Email', value: profile.email),
+          if (profile.phone != null && profile.phone!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _buildInfoRow(
+                icon: Icons.phone_outlined, label: 'Phone', value: profile.phone!),
+          ],
+          if (profile.address != null && profile.address!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _buildInfoRow(
+                icon: Icons.location_on_outlined,
+                label: 'Address',
+                value: profile.address!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(
+      {required IconData icon, required String label, required String value}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2E3A59).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: const Color(0xFF2E3A59)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF6B7280))),
+              const SizedBox(height: 2),
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1F2937))),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

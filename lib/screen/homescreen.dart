@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header(),
+            Header(),
             buildPageHome(context),
             const SizedBox(height: 20),
             Features(),

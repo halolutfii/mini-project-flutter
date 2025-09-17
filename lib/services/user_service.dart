@@ -28,7 +28,7 @@ class UserService {
   }
 
   Future<List<Users>> getEmployees() async {
-    final snapshot = await employees.where("role", isEqualTo: "employees").get();
+    final snapshot = await employees.where("role", isEqualTo: "employee").get();
 
     return snapshot.docs
         .map((doc) => Users.fromMap(doc.data() as Map<String, dynamic>))

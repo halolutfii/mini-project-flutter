@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'main.dart';
+import 'screen/auth/splashscreen.dart';
 import 'screen/homescreen.dart';
 import 'screen/auth/loginscreen.dart';
 import 'screen/updateprofilescreen.dart';
@@ -10,6 +11,7 @@ import 'screen/pages/admin/addEmployee.dart';
 
 class AppRoutes {
   static const String main = '/main';
+  static const String splashscreen = 'splashscreen';
   static const String home = '/home';
   static const String login = '/login';
   static const String updateProfile = '/updateProfile';
@@ -21,17 +23,19 @@ class AppRoutes {
     switch (settings.name) {
       case main:
         return MaterialPageRoute(builder: (_) => MainScreen());
+      case splashscreen:
+        return MaterialPageRoute(builder: (_) => SplashScreen());
       case home:
         return MaterialPageRoute(builder: (_) => HomeScreen());
       case login:
         return MaterialPageRoute(builder: (_) => LoginScreen());
-      case '/updateProfile':
-        return MaterialPageRoute(builder: (_) => EditProfileScreen());
-      case '/attendanceRequest':
+      case updateProfile:
+        return MaterialPageRoute(builder: (_) => UpdateProfileScreen());
+      case attendanceRequest:
         return MaterialPageRoute(builder: (_) => AttendanceRequestScreen());
-      case '/adminDashboard':
+      case adminDashboard:
         return MaterialPageRoute(builder: (_) => AdminDashboardScreen());
-      case '/addEmployee':
+      case addEmployee:
         return MaterialPageRoute(builder: (_) => EmployeeAddScreen());
       default:
         return MaterialPageRoute(

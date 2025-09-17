@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/admin_provider.dart';
+
+import '../../../widgets/appbar.dart';
 
 class EmployeeAddScreen extends StatefulWidget {
   const EmployeeAddScreen({super.key});
@@ -12,118 +15,136 @@ class EmployeeAddScreen extends StatefulWidget {
 
 class _EmployeeAddScreenState extends State<EmployeeAddScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _nameController = TextEditingController();
+
+  bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _nameController.dispose();
     super.dispose();
+  }
+
+  Widget buildTextField(String label, TextEditingController controller, {bool obscure = false}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      style: GoogleFonts.poppins(),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(color: Colors.grey[700]),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) return "$label tidak boleh kosong";
+        if (label == "Password" && value.length < 6) return "Password minimal 6 karakter";
+        return null;
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final InputDecoration fieldDecoration = InputDecoration(
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.grey),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.grey),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.blue, width: 1.5),
-      ),
-    );
-
-    final provider = context.watch<AdminProvider>();
+    final adminProvider = Provider.of<AdminProvider>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Employee")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: CustomAppBar(
+        title: "Add New Employee",
+        onBack: () => Navigator.pop(context),
+        showDrawer: false,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: fieldDecoration.copyWith(labelText: "Name"),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Name is required"
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      buildTextField("Name", _nameController),
+                      const SizedBox(height: 12),
+                      buildTextField("Email", _emailController),
+                      const SizedBox(height: 12),
+                      buildTextField("Password", _passwordController, obscure: _obscurePassword),
+                      const SizedBox(height: 20),
 
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: fieldDecoration.copyWith(labelText: "Email"),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Email is required"
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
+                      // Button Add Employee
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    setState(() => _isLoading = true);
+                                    try {
+                                      await adminProvider.addEmployee(
+                                        _emailController.text.trim(),
+                                        _passwordController.text.trim(),
+                                        _nameController.text.trim(),
+                                      );
 
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: fieldDecoration.copyWith(
-                        labelText: "Password",
+                                      if (mounted) {
+                                        if (adminProvider.errorMessage == null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text("Employee created successfully"),
+                                            ),
+                                          );
+                                          Navigator.pop(context);
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(adminProvider.errorMessage!),
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    } finally {
+                                      if (mounted) setState(() => _isLoading = false);
+                                    }
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2E3A59),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  "Create Employee",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
                       ),
-                      validator: (value) => value == null || value.length < 6
-                          ? "Password must be 6+ chars"
-                          : null,
-                    ),
-                  ],
-                ),
-              ),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (!_formKey.currentState!.validate()) return;
-
-                        final provider = context.read<AdminProvider>();
-                        await provider.addEmployee(
-                          _emailController.text.trim(),
-                          _passwordController.text.trim(),
-                          _nameController.text.trim(),
-                        );
-
-                        if (mounted) {
-                          if (provider.errorMessage == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Employee created successfully"),
-                              ),
-                            );
-                            Navigator.pop(context);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(provider.errorMessage!)),
-                            );
-                          }
-                        }
-                      },
-                      child: provider.isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text("Create Employee"),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ],
           ),

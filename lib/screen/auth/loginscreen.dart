@@ -8,7 +8,6 @@ import '../../widgets/footer.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/api_service.dart';
-import 'registerscreen.dart';
 import '../../routes.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -121,52 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // GOOGLE SIGN IN BUTTON
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   child: OutlinedButton.icon(
-                    //     icon: Image.asset(
-                    //       "assets/images/google.png", // logo google
-                    //       height: 20,
-                    //     ),
-                    //     label: const Text(
-                    //       "Sign in with Google",
-                    //       style: TextStyle(color: Colors.black87, fontSize: 16),
-                    //     ),
-                    //     onPressed: () async {
-                    //       final success = await authProvider.signInWithGoogle();
-                    //       if (success && mounted) {
-                    //         Navigator.pushReplacementNamed(context, AppRoutes.main);
-                    //       } else {
-                    //         ScaffoldMessenger.of(context).showSnackBar(
-                    //           SnackBar(
-                    //               content: Text(authProvider.errorMessage ??
-                    //                   "Google Sign-In failed")),
-                    //         );
-                    //       }
-                    //     },
-                    //   ),
-                    // ),
-                    
-                    // TextButton(
-                    //   onPressed: () {
-                    //     Navigator.pushReplacement(
-                    //       context,
-                    //       MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                    //     );
-                    //   },
-                    //   child: Text(
-                    //     "Belum punya akun? Register",
-                    //     style: GoogleFonts.poppins(color: const Color(0xFF2E3A59)),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
             ),
-
 
             const SizedBox(height: 12),
             Footer(),

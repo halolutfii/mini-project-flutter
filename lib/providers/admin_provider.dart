@@ -14,13 +14,18 @@ class AdminProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  /// Ambil ulang semua employees dari Firestore
   Future<void> loadEmployees() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _employees = await _service.getEmployees();
+      final fetched = await _service.getEmployees();
+      debugPrint("✅ Employees fetched: ${fetched.length}");
+      _employees
+        ..clear()
+        ..addAll(fetched);
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -29,6 +34,7 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
+  /// Tambah employee baru, lalu push ke list lokal juga
   Future<void> addEmployee(String email, String password, String name) async {
     _isLoading = true;
     _errorMessage = null;
@@ -41,6 +47,7 @@ class AdminProvider with ChangeNotifier {
         name: name,
       );
       _employees.add(newEmployee);
+      debugPrint("👤 New employee added: ${newEmployee.name}");
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -49,12 +56,14 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
+  /// Hapus employee by UID
   Future<void> deleteEmployee(String uid) async {
     _isLoading = true;
     notifyListeners();
     try {
       await _service.deleteEmployee(uid);
       _employees.removeWhere((e) => e.uid == uid);
+      debugPrint("🗑️ Employee deleted: $uid");
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -65,5 +74,12 @@ class AdminProvider with ChangeNotifier {
 
   bool validateForm() {
     return formKey.currentState!.validate();
+  }
+
+  /// Reset semua state (dipanggil waktu logout)
+  void clearEmployees() {
+    _employees.clear();
+    _errorMessage = null;
+    notifyListeners();
   }
 }

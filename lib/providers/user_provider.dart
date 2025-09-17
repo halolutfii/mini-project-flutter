@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../services/user_service.dart';
@@ -11,6 +12,14 @@ class UserProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  File? _selectedImage;
+  File? get selectedImage => _selectedImage;
+
+  void setSelectedImage(File? file) {
+    _selectedImage = file;
+    notifyListeners();
+  }
+
   // form key
   final formKey = GlobalKey<FormState>();
 
@@ -21,7 +30,7 @@ class UserProvider extends ChangeNotifier {
   final addressController = TextEditingController();
   final bioController = TextEditingController();
 
-  // load profile from Firestore
+  // load profile dari Firestore
   Future<void> loadProfile(String uid) async {
     _setLoading(true);
     try {
@@ -48,15 +57,16 @@ class UserProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       final updated = Users(
-          uid: _user!.uid,
-          email: _user!.email,
-          name: nameController.text,
-          profession: professionController.text,
-          phone: phoneController.text,
-          address: addressController.text,
-          bio: bioController.text,
-          photo: _user!.photo,
-          role: _user!.role);
+        uid: _user!.uid,
+        email: _user!.email,
+        name: nameController.text,
+        profession: professionController.text,
+        phone: phoneController.text,
+        address: addressController.text,
+        bio: bioController.text,
+        photo: _user!.photo, // nanti bisa diganti URL upload foto
+        role: _user!.role,
+      );
 
       await _userService.updateUserProfile(updated);
       _user = updated;
