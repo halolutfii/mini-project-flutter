@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import 'updateprofilescreen.dart';
+import '../routes.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -51,21 +52,7 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Edit button
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              icon: const Icon(Icons.edit, color: Color(0xFF2E3A59)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const UpdateProfileScreen()),
-                );
-              },
-            ),
-          ),
-
-          // Avatar + Name
+           // Avatar + Name
           Center(
             child: Column(
               children: [
@@ -96,6 +83,18 @@ class ProfileScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       fontSize: 14, color: Colors.grey, height: 1.4),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2E3A59),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.updateProfile);
+                  },
+                  child: const Text("Update Profile"),
                 ),
               ],
             ),
