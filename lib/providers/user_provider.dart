@@ -50,6 +50,89 @@ class UserProvider extends ChangeNotifier {
   }
 
   // update profile ke Firestore
+  // Future<void> updateProfile() async {
+  //   if (_user == null) return;
+  //   if (!formKey.currentState!.validate()) return;
+
+  //   _setLoading(true);
+  //   try {
+  //     final updated = Users(
+  //       uid: _user!.uid,
+  //       email: _user!.email,
+  //       name: nameController.text,
+  //       profession: professionController.text,
+  //       phone: phoneController.text,
+  //       address: addressController.text,
+  //       bio: bioController.text,
+  //       photo: _user!.photo, // nanti bisa diganti URL upload foto
+  //       role: _user!.role,
+  //     );
+
+  //     await _userService.updateUserProfile(updated);
+  //     _user = updated;
+  //     notifyListeners();
+  //   } finally {
+  //     _setLoading(false);
+  //   }
+  // }
+
+   // upload foto profile ke Supabase
+  Future<String> uploadProfilePhoto(File file) async {
+    if (_user == null) throw Exception("User not loaded");
+    final url = await _userService.uploadProfilePhoto(_user!.uid, file);
+    _user = Users(
+      uid: _user!.uid,
+      email: _user!.email,
+      name: _user!.name,
+      profession: _user!.profession,
+      phone: _user!.phone,
+      address: _user!.address,
+      bio: _user!.bio,
+      photo: url,
+      role: _user!.role,
+    );
+    
+    notifyListeners();
+    return url;
+  }
+
+  // update profile + optional upload foto baru
+  Future<void> updateProfileWithPhoto({File? newPhoto}) async {
+    if (_user == null) return;
+    if (!formKey.currentState!.validate()) return;
+
+    _setLoading(true);
+    try {
+      String? photoUrl = _user!.photo;
+
+      if (newPhoto != null) {
+        photoUrl = await uploadProfilePhoto(newPhoto); // Upload foto baru
+      }
+
+      final updated = Users(
+        uid: _user!.uid,
+        email: _user!.email,
+        name: nameController.text,
+        profession: professionController.text,
+        phone: phoneController.text,
+        address: addressController.text,
+        bio: bioController.text,
+        photo: photoUrl,
+        role: _user!.role,
+      );
+
+      await _userService.updateUserProfile(updated);
+      _user = updated;
+      notifyListeners();
+    } catch (e) {
+      print('Error updating profile with photo: $e');
+      rethrow; // Rethrow untuk penanganan lebih lanjut di UI
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // update profile tanpa foto (lama)
   Future<void> updateProfile() async {
     if (_user == null) return;
     if (!formKey.currentState!.validate()) return;
@@ -64,7 +147,7 @@ class UserProvider extends ChangeNotifier {
         phone: phoneController.text,
         address: addressController.text,
         bio: bioController.text,
-        photo: _user!.photo, // nanti bisa diganti URL upload foto
+        photo: _user!.photo,
         role: _user!.role,
       );
 

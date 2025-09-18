@@ -15,7 +15,6 @@ class UpdateProfileScreen extends StatefulWidget {
 }
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
   bool isSaving = false;
 
   Future<void> _pickImage(BuildContext context) async {
@@ -27,9 +26,72 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     }
   }
 
+  Future<void> _saveProfile(BuildContext context) async {
+    final provider = Provider.of<UserProvider>(context, listen: false);
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      // Periksa apakah ada foto baru yang di-upload, jika ada, update foto
+      if (provider.selectedImage != null) {
+        await provider.updateProfileWithPhoto(newPhoto: provider.selectedImage);
+      } else {
+        await provider.updateProfile(); // Update tanpa foto baru
+      }
+
+      // Menampilkan SnackBar sukses
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Text("Profile updated successfully!"),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Langsung navigasi kembali ke ProfileScreen
+      Navigator.pop(context); // Pop untuk kembali ke Profile Screen
+
+    } catch (error) {
+      print('Error updating profile: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 8),
+              Text("Failed to update profile. Please try again."),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+
+    setState(() {
+      isSaving = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<UserProvider>(context);
+     final provider = Provider.of<UserProvider>(context);
     final user = provider.user;
 
     return Scaffold(
@@ -42,7 +104,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
-          key: _formKey,
+          key: provider.formKey,
           child: Column(
             children: [
               // Avatar
@@ -83,7 +145,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
 
               // Full Name
@@ -91,7 +152,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 controller: provider.nameController,
                 decoration: const InputDecoration(labelText: "Full Name"),
                 validator: (val) {
-                  if (val == null || val.isEmpty) return "Full Name is required";
+                  if (val == null || val.isEmpty) return "Full Name required";
                   if (val.length < 3) return "Min 3 characters";
                   return null;
                 },
@@ -121,50 +182,41 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
               TextFormField(
                 controller: provider.addressController,
                 decoration: const InputDecoration(labelText: "Address"),
+                validator: (val) {
+                  if (val == null || val.isEmpty) return "Address required";
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
-
+              
               // Bio
               TextFormField(
                 controller: provider.bioController,
                 decoration: const InputDecoration(labelText: "Bio"),
                 maxLines: 3,
+                validator: (val) {
+                  if (val == null || val.isEmpty) return "Bio required";
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
-
-              // Buttons
+              
               isSaving || provider.isLoading
-                  ? const CircularProgressIndicator()
+                  ? const Center(child: CircularProgressIndicator())
                   : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2E3A59),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                           onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() => isSaving = true);
-
-                              await provider.updateProfile();
-
-                              setState(() => isSaving = false);
-
-                              if (mounted) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text("Profile updated successfully!"),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
+                            if (provider.formKey.currentState!.validate()) {
+                              await _saveProfile(context);
                             }
                           },
                           child: const Text(
@@ -176,11 +228,11 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 16),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -190,8 +242,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text("Cancel"),
-                                content: const Text(
-                                    "Are you sure you want to cancel?"),
+                                content: const Text("Are you sure you want to cancel?"),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx),
@@ -211,8 +262,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           child: const Text(
                             'Cancel',
                             style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600),
+                                color: Colors.white, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],

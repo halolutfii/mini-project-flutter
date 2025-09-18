@@ -4,6 +4,7 @@ import 'package:hr_attendance_tracker_app/providers/admin_provider.dart';
 import 'package:hr_attendance_tracker_app/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'providers/attendance_provider.dart';
 import 'providers/attendanceRequest_provider.dart';
@@ -24,12 +25,17 @@ import 'routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await Firebase.initializeApp(
+      await Firebase.initializeApp(
           options: FirebaseOptions(
               projectId: 'backend-hr-472113', // Project ID
               messagingSenderId: '716285922483',//Project Number
               apiKey: 'AIzaSyBpa0N-gkTEfay6mLjn3mCBoLWpdlE9AyU',//Web API Key
               appId: '1:716285922483:android:16d68e2b73707fb322b4c6'), // App ID
+      );
+
+      await Supabase.initialize(
+        url: 'https://fjiwjztctrhwzwggtikx.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqaXdqenRjdHJod3p3Z2d0aWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjYyNDMsImV4cCI6MjA3MzcwMjI0M30.2N1ew6cqQyrGV8gUH3ZlhLilWPhHM4Xv3qpX0MuDO8M',
       );
   runApp(
     MultiProvider(

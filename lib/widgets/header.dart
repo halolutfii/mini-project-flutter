@@ -92,9 +92,12 @@ class _HeaderState extends State<Header> {
           CircleAvatar(
             radius: 28,
             backgroundColor: Colors.grey[200],
-            backgroundImage:
-                user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
-            child: user?.photoURL == null
+            backgroundImage: user?.photoURL != null
+                ? NetworkImage(user!.photoURL!)
+                : (profile?.photo != null && profile!.photo!.isNotEmpty
+                    ? NetworkImage(profile!.photo!)
+                    : null), // Gunakan ? untuk memeriksa null
+            child: user?.photoURL == null && (profile == null || profile.photo == null || profile.photo!.isEmpty)
                 ? const Icon(Icons.person, size: 28, color: Colors.grey)
                 : null,
           ),
