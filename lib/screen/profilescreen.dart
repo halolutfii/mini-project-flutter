@@ -76,7 +76,6 @@ class ProfileScreen extends StatelessWidget {
                 if (profile.profession != null && profile.profession!.isNotEmpty)
                   Text(profile.profession!,
                       style: const TextStyle(fontSize: 16, color: Colors.black87)),
-                const SizedBox(height: 8),
                 if (profile.bio != null && profile.bio!.isNotEmpty)
                 Text(
                   profile.bio!,
@@ -84,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 14, color: Colors.grey, height: 1.4),
                 ),
-                const SizedBox(height: 10),
+        
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2E3A59),
