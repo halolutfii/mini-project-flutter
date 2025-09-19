@@ -13,8 +13,9 @@ class _LogsTabState extends State<LogsTab> {
   @override
   void initState() {
     super.initState();
+    // Ganti 'userId' dengan user ID yang sesuai
     Future.microtask(() {
-      Provider.of<AttendanceProvider>(context, listen: false).loadAttendance();
+      Provider.of<AttendanceProvider>(context, listen: false).loadAttendance('user123');
     });
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/attendance_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Attendance extends StatelessWidget {
   const Attendance({super.key});
@@ -30,11 +31,18 @@ class Attendance extends StatelessWidget {
     final attendanceProvider = Provider.of<AttendanceProvider>(context);
     final isCheckedIn = attendanceProvider.isCheckedIn;
 
+    // Mendapatkan userId dari Firebase Authentication
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      return const Center(child: Text('User not logged in'));
+    }
+
     return ElevatedButton(
       onPressed: () {
         if (!isCheckedIn) {
           // check-in
-          attendanceProvider.checkIn();
+          attendanceProvider.checkIn(userId);
           _showSnackBar(context, "Checked In Successfully!", Colors.green, Icons.check_circle);
         } else {
           // konfirmasi sebelum check-out

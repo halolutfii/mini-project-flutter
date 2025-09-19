@@ -6,15 +6,16 @@ class AttendanceProvider with ChangeNotifier {
   final AttendanceService _service = AttendanceService();
 
   final List<Attendance> _records = [];
-  Attendance? _activeAttendance; 
+  Attendance? _activeAttendance;
   bool _isCheckedIn = false;
 
   List<Attendance> get records => _records;
   bool get isCheckedIn => _isCheckedIn;
 
-  Future<void> loadAttendance() async {
+  // Memuat data attendance berdasarkan userId
+  Future<void> loadAttendance(String userId) async {
     try {
-      final data = await _service.getMyAttendance();
+      final data = await _service.getMyAttendance(userId);
       
       _records
         ..clear()
@@ -33,9 +34,10 @@ class AttendanceProvider with ChangeNotifier {
     }
   }
 
-  Future<void> checkIn() async {
+  // Check-in berdasarkan userId
+  Future<void> checkIn(String userId) async {
     try {
-      final attendance = await _service.checkIn();
+      final attendance = await _service.checkIn(userId);
       _records.add(attendance);
       _activeAttendance = attendance; 
       _isCheckedIn = true;
@@ -45,6 +47,7 @@ class AttendanceProvider with ChangeNotifier {
     }
   }
 
+  // Check-out
   Future<void> checkOut() async {
     if (_activeAttendance == null) return;
     try {

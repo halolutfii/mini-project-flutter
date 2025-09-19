@@ -1,30 +1,49 @@
-import 'package:dio/dio.dart';
-import 'api_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/attendance.dart';
 
 class AttendanceService {
-  final ApiService _api = ApiService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String collectionName = 'attendances'; 
 
-  Future<List<Attendance>> getMyAttendance() async {
-    final res = await _api.dio.get('/attendance');
+  // Mengambil daftar attendance berdasarkan user yang login
+  Future<List<Attendance>> getMyAttendance(String userId) async {
+    final querySnapshot = await _firestore
+        .collection(collectionName)
+        .where('users', isEqualTo: userId) // Filter berdasarkan userId
+        .orderBy('date', descending: true)
+        .get();
 
-    final responseData = res.data; // ini Map<String, dynamic>
-    if (responseData['data'] is List) {
-      return (responseData['data'] as List)
-          .map((e) => Attendance.fromJson(e))
-          .toList();
-    } else {
-      throw Exception("Unexpected response format: ${res.data}");
-    }
+    return querySnapshot.docs
+        .map((doc) => Attendance.fromFirestore(doc))
+        .toList();
   }
 
-  Future<Attendance> checkIn() async {
-    final res = await _api.dio.post('/attendance/check-in');
-    return Attendance.fromJson(res.data);
+  // Check-in ke Firestore
+  Future<Attendance> checkIn(String userId) async {
+    final newAttendance = Attendance(
+      id: '', // Firestore akan menghasilkan id secara otomatis
+      user: userId,
+      date: DateTime.now(),
+      clockIn: DateTime.now(),
+      clockOut: null,
+      status: 'Present',
+    );
+
+    final docRef = await _firestore.collection(collectionName).add(newAttendance.toMap());
+    return Attendance.fromFirestore(await docRef.get());
   }
 
-  Future<Attendance> checkOut(String id) async {
-    final res = await _api.dio.put('/attendance/checkout/$id');
-    return Attendance.fromJson(res.data);
+  // Check-out dan update attendance di Firestore
+  Future<Attendance> checkOut(String attendanceId) async {
+    final docRef = _firestore.collection(collectionName).doc(attendanceId);
+
+    final docSnapshot = await docRef.get();
+    if (!docSnapshot.exists) throw Exception('Attendance not found');
+
+    final updatedAttendance = Attendance.fromFirestore(docSnapshot);
+    final updated = updatedAttendance.copyWith(clockOut: DateTime.now());
+
+    await docRef.update(updated.toMap());
+    return updated;
   }
 }
